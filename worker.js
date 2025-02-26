@@ -44,20 +44,34 @@ async function handleRequest(request) {
   return new Response('Not found', { status: 404, headers: corsHeaders });
 }
 
-// Improved base64 encoding function that handles large files
-function arrayBufferToBase64(buffer) {
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  // Process in chunks to avoid call stack size exceeded
-  const chunkSize = 1024;
-  for (let i = 0; i < len; i += chunkSize) {
-    const chunk = bytes.slice(i, Math.min(i + chunkSize, len));
-    for (let j = 0; j < chunk.length; j++) {
-      binary += String.fromCharCode(chunk[j]);
-    }
+async function uploadToGemini(arrayBuffer, mimeType, displayName, apiKey) {
+  console.log(`Attempting to upload file: ${displayName}, Size: ${arrayBuffer.byteLength}, Type: ${mimeType}`);
+  
+  // Create form data for upload
+  const formData = new FormData();
+  const blob = new Blob([arrayBuffer], { type: mimeType });
+  formData.append('file', blob, displayName);
+  
+  // Upload file to Google's API
+  const uploadUrl = 'https://generativelanguage.googleapis.com/v1/media:upload';
+  const uploadResponse = await fetch(`${uploadUrl}?key=${apiKey}`, {
+    method: 'POST',
+    body: formData
+  });
+  
+  if (!uploadResponse.ok) {
+    const errorText = await uploadResponse.text();
+    console.error('Upload failed:', errorText);
+    throw new Error(`Failed to upload file: ${uploadResponse.status} ${errorText}`);
   }
-  return btoa(binary);
+  
+  const uploadResult = await uploadResponse.json();
+  console.log('File uploaded successfully:', uploadResult.name);
+  
+  return {
+    mimeType: mimeType,
+    uri: uploadResult.uri || uploadResult.name
+  };
 }
 
 async function generatePalette(request) {
@@ -90,9 +104,8 @@ async function generatePalette(request) {
     
     console.log('Image file received:', imageFile.name, 'Size:', imageFile.size, 'Type:', imageFile.type);
     
-    // Convert image to base64 using the improved function
+    // Get image array buffer
     const arrayBuffer = await imageFile.arrayBuffer();
-    const imageBase64 = arrayBufferToBase64(arrayBuffer);
     
     // Initialize Gemini API
     const API_KEY = GEMINI_API_KEY; // Set in Cloudflare Worker environment variables
@@ -138,29 +151,39 @@ async function generatePalette(request) {
     // Create prompt for Gemini
     const prompt = "Analyze this image and extract a harmonious color palette of 5 colors that represents the key colors in the image. For each color, provide the hex code. Also, suggest a creative name for this palette that evokes the mood or theme of the image. Return the result as JSON in this format: {\"name\": \"Palette Name\", \"colors\": [{\"hex\": \"#XXXXXX\"}, ...]}";
     
-    console.log('Preparing to send request to Gemini API...');
+    console.log('Uploading image to Gemini...');
     
-    // Prepare the content parts
-    const imagePart = {
-      inlineData: {
-        mimeType: imageFile.type,
-        data: imageBase64
-      }
-    };
+    // Upload file to Gemini first
+    const uploadedFile = await uploadToGemini(
+      arrayBuffer,
+      imageFile.type,
+      imageFile.name,
+      API_KEY
+    );
     
-    const textPart = { text: prompt };
+    console.log('Preparing to send request to Gemini API with file URI:', uploadedFile.uri);
     
-    // Use generateContent method directly as per the documentation
-    const result = await model.generateContent({
-      contents: [{ parts: [imagePart, textPart] }],
+    // Create a chat session with the model
+    const chatSession = model.startChat({
       generationConfig,
       safetySettings,
+      history: []
     });
+    
+    // Send message with file reference
+    const result = await chatSession.sendMessage([
+      {
+        fileData: {
+          mimeType: uploadedFile.mimeType,
+          fileUri: uploadedFile.uri
+        }
+      },
+      { text: prompt }
+    ]);
     
     console.log('Gemini API response received');
     
-    const response = result.response;
-    const text = response.text();
+    const text = result.response.text();
     
     console.log('Response text:', text.substring(0, 100) + '...');
     
