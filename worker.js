@@ -102,14 +102,14 @@ async function generatePalette(request) {
     
     const genAI = new GoogleGenerativeAI(API_KEY);
     
-    // Use a more recent model as recommended in the example
+    // Use the gemini-2.0-flash-lite model as specified
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.0-flash-lite",
       generationConfig: {
-        temperature: 0.4,
+        temperature: 1,
         topP: 0.95,
         topK: 40,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 8192,
       }
     });
     
@@ -118,7 +118,7 @@ async function generatePalette(request) {
     
     console.log('Starting chat session with Gemini API...');
     
-    // Use chat session approach as shown in the example
+    // Use chat session approach
     const chatSession = model.startChat({
       history: []
     });
