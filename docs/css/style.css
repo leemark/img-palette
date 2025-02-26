@@ -629,6 +629,11 @@ footer a:hover {
   transition: opacity var(--transition-normal);
 }
 
+/* Make sure hidden elements are completely hidden */
+[hidden] {
+  display: none !important;
+}
+
 .modal-backdrop.show {
   opacity: 1;
   pointer-events: auto;

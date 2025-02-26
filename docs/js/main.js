@@ -147,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPalette = paletteData;
             
             // Hide loading indicator and show palette
+            loadingIndicator.style.display = 'none';
             loadingIndicator.hidden = true;
             paletteContainer.hidden = false;
             
@@ -157,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
             paletteContainer.scrollIntoView({ behavior: 'smooth' });
         } catch (error) {
             console.error('Error generating palette:', error);
+            loadingIndicator.style.display = 'none';
             loadingIndicator.hidden = true;
             
             // Show error message
