@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>img palette - AI Color Palette Explorer</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>img palette</h1>
+        <p>AI-powered color palette generator from your images</p>
+    </header>
+
+    <main>
+        <section class="upload-section">
+            <div class="upload-container" id="upload-container">
+                <div class="upload-content">
+                    <img src="images/upload-icon.svg" alt="Upload" class="upload-icon">
+                    <h2>Upload an image</h2>
+                    <p>Drag & drop or click to select</p>
+                    <input type="file" id="image-upload" accept="image/*" hidden>
+                    <button class="upload-button">Select image</button>
+                </div>
+                <div class="preview-container" id="image-preview-container" hidden>
+                    <img id="image-preview" alt="Image preview">
+                    <button class="remove-button" id="remove-image">×</button>
+                </div>
+            </div>
+            <button class="generate-button" id="generate-palette" disabled>Generate Palette</button>
+        </section>
+
+        <section class="results-section" id="results-section" hidden>
+            <div class="loading-indicator" id="loading-indicator">
+                <div class="spinner"></div>
+                <p>Analyzing image and generating palette...</p>
+            </div>
+            
+            <div class="palette-container" id="palette-container">
+                <h2 class="palette-name" id="palette-name">Your Palette</h2>
+                <div class="palette-colors" id="palette-colors"></div>
+                <div class="palette-info">
+                    <div class="color-codes" id="color-codes"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>Powered by Google Gemini | <a href="#">About</a></p>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html> 
