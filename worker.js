@@ -165,6 +165,17 @@ async function generatePalette(request) {
     // Get image array buffer
     const arrayBuffer = await imageFile.arrayBuffer();
     
+    // Convert ArrayBuffer to Base64 for direct inline usage - more reliable method
+    const uint8Array = new Uint8Array(arrayBuffer);
+    const chunks = [];
+    const chunkSize = 0x8000; // 32KB chunks to avoid memory issues
+    
+    for (let i = 0; i < uint8Array.length; i += chunkSize) {
+      chunks.push(String.fromCharCode.apply(null, uint8Array.subarray(i, i + chunkSize)));
+    }
+    
+    const base64Data = btoa(chunks.join(""));
+    
     // Initialize Gemini API
     const API_KEY = GEMINI_API_KEY; // Set in Cloudflare Worker environment variables
     if (!API_KEY) {
@@ -209,17 +220,7 @@ async function generatePalette(request) {
     // Create prompt for Gemini
     const prompt = "Analyze this image and extract a harmonious color palette of 5 colors that represents the key colors in the image. For each color, provide the hex code. Also, suggest a creative name for this palette that evokes the mood or theme of the image. Return the result as JSON in this format: {\"name\": \"Palette Name\", \"colors\": [{\"hex\": \"#XXXXXX\"}, ...]}";
     
-    console.log('Uploading image to Gemini...');
-    
-    // Upload file to Gemini first
-    const uploadedFile = await uploadToGemini(
-      arrayBuffer,
-      imageFile.type,
-      imageFile.name,
-      API_KEY
-    );
-    
-    console.log('Preparing to send request to Gemini API with file URI:', uploadedFile.uri);
+    console.log('Preparing image for Gemini API...');
     
     // Create a chat session with the model
     const chatSession = model.startChat({
@@ -228,12 +229,12 @@ async function generatePalette(request) {
       history: []
     });
     
-    // Send message with file reference
+    // Send message with inline image data
     const result = await chatSession.sendMessage([
       {
-        fileData: {
-          mimeType: uploadedFile.mimeType,
-          fileUri: uploadedFile.uri
+        inlineData: {
+          mimeType: imageFile.type,
+          data: base64Data
         }
       },
       { text: prompt }
