@@ -102,41 +102,65 @@ async function generatePalette(request) {
     
     const genAI = new GoogleGenerativeAI(API_KEY);
     
+    // Set up generation configuration according to the documentation
+    const generationConfig = {
+      temperature: 1,
+      topP: 0.95,
+      topK: 40,
+      maxOutputTokens: 8192,
+    };
+    
+    // Set up safety settings
+    const safetySettings = [
+      {
+        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+      },
+    ];
+    
     // Use the gemini-2.0-flash-lite model as specified
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.0-flash-lite",
-      generationConfig: {
-        temperature: 1,
-        topP: 0.95,
-        topK: 40,
-        maxOutputTokens: 8192,
-      }
     });
     
     // Create prompt for Gemini
     const prompt = "Analyze this image and extract a harmonious color palette of 5 colors that represents the key colors in the image. For each color, provide the hex code. Also, suggest a creative name for this palette that evokes the mood or theme of the image. Return the result as JSON in this format: {\"name\": \"Palette Name\", \"colors\": [{\"hex\": \"#XXXXXX\"}, ...]}";
     
-    console.log('Starting chat session with Gemini API...');
+    console.log('Preparing to send request to Gemini API...');
     
-    // Use chat session approach
-    const chatSession = model.startChat({
-      history: []
+    // Prepare the content parts
+    const imagePart = {
+      inlineData: {
+        mimeType: imageFile.type,
+        data: imageBase64
+      }
+    };
+    
+    const textPart = { text: prompt };
+    
+    // Use generateContent method directly as per the documentation
+    const result = await model.generateContent({
+      contents: [{ parts: [imagePart, textPart] }],
+      generationConfig,
+      safetySettings,
     });
-    
-    // Send message with image
-    const result = await chatSession.sendMessage([
-      {
-        inlineData: {
-          mimeType: imageFile.type,
-          data: imageBase64
-        }
-      },
-      { text: prompt }
-    ]);
     
     console.log('Gemini API response received');
     
-    const text = result.response.text();
+    const response = result.response;
+    const text = response.text();
     
     console.log('Response text:', text.substring(0, 100) + '...');
     
