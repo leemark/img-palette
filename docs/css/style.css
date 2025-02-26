@@ -144,6 +144,7 @@ button {
   flex-direction: column;
   align-items: center;
   margin-bottom: 40px;
+  text-align: center;
 }
 
 .upload-container {
@@ -160,6 +161,7 @@ button {
   overflow: hidden;
   background-color: var(--card-color);
   transition: all var(--transition-normal);
+  text-align: center;
 }
 
 .upload-container.dragover {
@@ -174,10 +176,10 @@ button {
 }
 
 .upload-icon {
-  width: 64px;
-  height: 64px;
+  font-size: 64px;
   margin-bottom: 16px;
   transition: transform var(--transition-normal);
+  color: var(--primary-color);
 }
 
 .upload-container:hover .upload-icon {
@@ -256,6 +258,8 @@ button {
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
   margin-top: 8px;
+  align-self: center;
+  text-align: center;
 }
 
 .generate-button:disabled {
