@@ -146,12 +146,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const paletteData = await response.json();
             currentPalette = paletteData;
             
-            // Hide loading indicator
+            // Hide loading indicator and show palette
             loadingIndicator.hidden = true;
             paletteContainer.hidden = false;
             
             displayPalette(paletteData);
             showToast('Palette generated successfully!', 'success');
+            
+            // Scroll to the palette container for better UX
+            paletteContainer.scrollIntoView({ behavior: 'smooth' });
         } catch (error) {
             console.error('Error generating palette:', error);
             loadingIndicator.hidden = true;
