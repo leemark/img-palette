@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 
 // Configuration
 const corsHeaders = {
@@ -101,28 +101,42 @@ async function generatePalette(request) {
     }
     
     const genAI = new GoogleGenerativeAI(API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    // Use a more recent model as recommended in the example
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash-lite",
+      generationConfig: {
+        temperature: 0.4,
+        topP: 0.95,
+        topK: 40,
+        maxOutputTokens: 2048,
+      }
+    });
     
     // Create prompt for Gemini
     const prompt = "Analyze this image and extract a harmonious color palette of 5 colors that represents the key colors in the image. For each color, provide the hex code. Also, suggest a creative name for this palette that evokes the mood or theme of the image. Return the result as JSON in this format: {\"name\": \"Palette Name\", \"colors\": [{\"hex\": \"#XXXXXX\"}, ...]}";
     
-    console.log('Calling Gemini API...');
+    console.log('Starting chat session with Gemini API...');
     
-    // Call Gemini API
-    const result = await model.generateContent([
-      prompt,
+    // Use chat session approach as shown in the example
+    const chatSession = model.startChat({
+      history: []
+    });
+    
+    // Send message with image
+    const result = await chatSession.sendMessage([
       {
         inlineData: {
           mimeType: imageFile.type,
           data: imageBase64
         }
-      }
+      },
+      { text: prompt }
     ]);
     
     console.log('Gemini API response received');
     
-    const response = result.response;
-    const text = response.text();
+    const text = result.response.text();
     
     console.log('Response text:', text.substring(0, 100) + '...');
     
