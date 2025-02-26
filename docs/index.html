@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +8,24 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header>
-        <h1>img palette</h1>
-        <p>AI-powered color palette generator from your images</p>
+        <div class="header-content">
+            <div class="logo">
+                <h1>img palette</h1>
+                <p>AI-powered color palette generator from your images</p>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="https://github.com/leemark/img-palette" class="github-link" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+        </div>
     </header>
 
     <main>
@@ -23,14 +36,20 @@
                     <h2>Upload an image</h2>
                     <p>Drag & drop or click to select</p>
                     <input type="file" id="image-upload" accept="image/*" hidden>
-                    <button class="upload-button">Select image</button>
+                    <button class="upload-button">
+                        <i class="fas fa-cloud-upload-alt"></i> Select image
+                    </button>
                 </div>
                 <div class="preview-container" id="image-preview-container" hidden>
                     <img id="image-preview" alt="Image preview">
-                    <button class="remove-button" id="remove-image">×</button>
+                    <button class="remove-button" id="remove-image" aria-label="Remove image">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             </div>
-            <button class="generate-button" id="generate-palette" disabled>Generate Palette</button>
+            <button class="generate-button" id="generate-palette" disabled>
+                <i class="fas fa-paint-brush"></i> Generate Palette
+            </button>
         </section>
 
         <section class="results-section" id="results-section" hidden>
@@ -39,19 +58,38 @@
                 <p>Analyzing image and generating palette...</p>
             </div>
             
-            <div class="palette-container" id="palette-container">
+            <div class="palette-container" id="palette-container" hidden>
                 <h2 class="palette-name" id="palette-name">Your Palette</h2>
                 <div class="palette-colors" id="palette-colors"></div>
                 <div class="palette-info">
                     <div class="color-codes" id="color-codes"></div>
+                    <div class="palette-actions">
+                        <button id="copy-palette" class="action-button" title="Copy all colors">
+                            <i class="fas fa-copy"></i> Copy All
+                        </button>
+                        <button id="save-palette" class="action-button" title="Save palette">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                        <button id="share-palette" class="action-button" title="Share palette">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
                 </div>
             </div>
+        </section>
+        
+        <section class="history-section" id="history-section" hidden>
+            <h2>Recent Palettes</h2>
+            <div class="palette-history" id="palette-history"></div>
         </section>
     </main>
     
     <footer>
-        <p>Powered by Google Gemini | <a href="https://github.com/yourusername/img-palette" target="_blank">GitHub</a></p>
+        <p>Powered by <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">Google Gemini</a> | <a href="#" id="about-link">About</a></p>
     </footer>
+
+    <!-- Toast notification -->
+    <div class="toast-container" id="toast-container"></div>
 
     <script src="js/main.js"></script>
 </body>
