@@ -2,7 +2,7 @@ Color Format Options
     Add toggle between HEX, RGB, HSL, and CMYK values
     Display extended color information when clicking a color
 Enhanced Palette Interaction
-    Add ability to adjust/edit colors manually after generation
+    Add ability to adjust/edit colors manually after generation using color picker to choose from image
     Implement color lock feature to keep specific colors when regenerating
     Add color harmony suggestions based on color theory
     Allow user to delete saved palettes
