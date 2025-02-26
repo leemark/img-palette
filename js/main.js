@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const colorCodes = document.getElementById('color-codes');
 
     // API endpoint - Cloudflare Worker URL
-    const API_ENDPOINT = 'https://img-palette-api.your-subdomain.workers.dev/generate-palette';
+    const API_ENDPOINT = 'https://img-palette-api.leemark.workers.dev/generate-palette';
 
     // Event Listeners
     uploadButton.addEventListener('click', () => uploadInput.click());
