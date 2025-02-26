@@ -1,0 +1,23 @@
+name = "img-palette-api"
+main = "worker.js"
+compatibility_date = "2023-08-01"
+
+[vars]
+# These will need to be set in the Cloudflare dashboard or via CLI
+# GEMINI_API_KEY = "your-api-key-here"
+
+# Configure routes
+[[routes]]
+pattern = "img-palette-api.your-subdomain.workers.dev/*"
+zone_name = "your-subdomain.workers.dev"
+
+# Define environment bindings
+[env.production]
+# Production-specific environment variables can be defined here
+
+[env.staging]
+# Staging-specific environment variables can be defined here
+
+# Specify API Gateway integration if needed
+[api_gateway]
+enabled = true 

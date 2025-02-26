@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const paletteColors = document.getElementById('palette-colors');
     const colorCodes = document.getElementById('color-codes');
 
+    // API endpoint - Cloudflare Worker URL
+    const API_ENDPOINT = 'https://img-palette-api.your-subdomain.workers.dev/generate-palette';
+
     // Event Listeners
     uploadButton.addEventListener('click', () => uploadInput.click());
     uploadInput.addEventListener('change', handleImageUpload);
@@ -79,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('image', file);
             
-            const response = await fetch('/api/generate-palette', {
+            const response = await fetch(API_ENDPOINT, {
                 method: 'POST',
                 body: formData
             });

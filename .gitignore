@@ -1,2 +1,4 @@
 # Ignore environment variables file
 .env 
+CURSOR_CONTEXT.md
+DEVELOPMENT_LOG.md

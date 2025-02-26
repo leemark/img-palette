@@ -1,0 +1,16 @@
+{
+  "name": "img-palette-api",
+  "version": "1.0.0",
+  "description": "AI-powered color palette generator API",
+  "main": "worker.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler publish"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.1.3"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+} 
