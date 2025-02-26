@@ -2,3 +2,4 @@
 .env 
 CURSOR_CONTEXT.md
 DEVELOPMENT_LOG.md
+node_modules/*
