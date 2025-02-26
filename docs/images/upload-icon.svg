@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4361ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-  <polyline points="17 8 12 3 7 8"></polyline>
-  <line x1="12" y1="3" x2="12" y2="15"></line>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <path d="M32 8.83331C19.4 8.83331 9.33334 18.9 9.33334 31.5C9.33334 44.1 19.4 54.1666 32 54.1666C44.6 54.1666 54.6667 44.1 54.6667 31.5C54.6667 18.9 44.6 8.83331 32 8.83331ZM32 48.8333C22.3333 48.8333 14.6667 41.1666 14.6667 31.5C14.6667 21.8333 22.3333 14.1666 32 14.1666C41.6667 14.1666 49.3333 21.8333 49.3333 31.5C49.3333 41.1666 41.6667 48.8333 32 48.8333Z" fill="#4361EE"/>
+  <path d="M37.3333 24.3833L32 19.05L26.6667 24.3833" stroke="#4361EE" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32 19.05V37.0833" stroke="#4361EE" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M18.6667 40.75H45.3333" stroke="#4361EE" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
 </svg> 
