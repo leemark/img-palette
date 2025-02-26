@@ -47,31 +47,89 @@ async function handleRequest(request) {
 async function uploadToGemini(arrayBuffer, mimeType, displayName, apiKey) {
   console.log(`Attempting to upload file: ${displayName}, Size: ${arrayBuffer.byteLength}, Type: ${mimeType}`);
   
-  // Create form data for upload
-  const formData = new FormData();
-  const blob = new Blob([arrayBuffer], { type: mimeType });
-  formData.append('file', blob, displayName);
-  
-  // Upload file to Google's API
-  const uploadUrl = 'https://generativelanguage.googleapis.com/v1/media:upload';
-  const uploadResponse = await fetch(`${uploadUrl}?key=${apiKey}`, {
-    method: 'POST',
-    body: formData
-  });
-  
-  if (!uploadResponse.ok) {
-    const errorText = await uploadResponse.text();
-    console.error('Upload failed:', errorText);
-    throw new Error(`Failed to upload file: ${uploadResponse.status} ${errorText}`);
+  try {
+    // Step 1: Initiate the resumable upload session
+    const uploadUrl = 'https://generativelanguage.googleapis.com/upload/v1beta/files';
+    console.log(`Using upload URL for initiating resumable upload: ${uploadUrl}`);
+    
+    // Start the resumable upload
+    const initiateResponse = await fetch(`${uploadUrl}?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Upload-Protocol': 'resumable',
+        'X-Goog-Upload-Command': 'start',
+        'X-Goog-Upload-Header-Content-Length': arrayBuffer.byteLength.toString(),
+        'X-Goog-Upload-Header-Content-Type': mimeType,
+      },
+      body: JSON.stringify({
+        file: {
+          display_name: displayName
+        }
+      })
+    });
+    
+    if (!initiateResponse.ok) {
+      const errorText = await initiateResponse.text();
+      console.error('Upload initiation failed:', errorText);
+      console.error('Response status:', initiateResponse.status);
+      console.error('Response headers:', JSON.stringify(Object.fromEntries([...initiateResponse.headers])));
+      throw new Error(`Failed to initiate upload: ${initiateResponse.status} ${errorText}`);
+    }
+    
+    // Get the upload URL from the response headers
+    const uploadSessionUrl = initiateResponse.headers.get('X-Goog-Upload-URL');
+    if (!uploadSessionUrl) {
+      console.error('No upload URL in response headers:', JSON.stringify(Object.fromEntries([...initiateResponse.headers])));
+      throw new Error('Failed to get upload URL from response headers');
+    }
+    
+    console.log('Received upload session URL, proceeding with upload');
+    
+    // Step 2: Upload the file content
+    const uploadFileResponse = await fetch(uploadSessionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Length': arrayBuffer.byteLength.toString(),
+        'X-Goog-Upload-Offset': '0',
+        'X-Goog-Upload-Command': 'upload, finalize'
+      },
+      body: new Blob([arrayBuffer], { type: mimeType })
+    });
+    
+    if (!uploadFileResponse.ok) {
+      const errorText = await uploadFileResponse.text();
+      console.error('File content upload failed:', errorText);
+      console.error('Response status:', uploadFileResponse.status);
+      console.error('Response headers:', JSON.stringify(Object.fromEntries([...uploadFileResponse.headers])));
+      throw new Error(`Failed to upload file content: ${uploadFileResponse.status} ${errorText}`);
+    }
+    
+    // Parse the response to get the file info
+    const uploadResult = await uploadFileResponse.json();
+    console.log('Upload response:', JSON.stringify(uploadResult));
+    
+    // Extract URI with fallbacks for different response formats
+    const fileUri = uploadResult.file?.uri || 
+                   uploadResult.uri || 
+                   `files/${uploadResult.file?.name}` || 
+                   `files/${uploadResult.name}`;
+    
+    if (!fileUri) {
+      console.error('No file URI found in response:', JSON.stringify(uploadResult));
+      throw new Error('File upload succeeded but no URI was returned');
+    }
+    
+    console.log('Using file URI:', fileUri);
+    
+    return {
+      mimeType: mimeType,
+      uri: fileUri
+    };
+  } catch (error) {
+    console.error('Error in uploadToGemini:', error.message);
+    throw error;
   }
-  
-  const uploadResult = await uploadResponse.json();
-  console.log('File uploaded successfully:', uploadResult.name);
-  
-  return {
-    mimeType: mimeType,
-    uri: uploadResult.uri || uploadResult.name
-  };
 }
 
 async function generatePalette(request) {
