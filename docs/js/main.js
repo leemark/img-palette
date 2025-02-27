@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Functions
     function initTheme() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
+        const savedTheme = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
     }
@@ -83,8 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const icon = themeToggle.querySelector('i');
         if (theme === 'dark') {
             icon.className = 'fas fa-sun';
+            themeToggle.setAttribute('aria-label', 'Toggle light mode');
         } else {
             icon.className = 'fas fa-moon';
+            themeToggle.setAttribute('aria-label', 'Toggle dark mode');
         }
     }
 
