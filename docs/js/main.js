@@ -534,7 +534,8 @@ document.addEventListener('DOMContentLoaded', () => {
         paletteColors.innerHTML = '';
         colorCodes.innerHTML = '';
         
-        // Add color swatches
+        // Add color swatches with circular control buttons and 
+        // color code items with only info buttons (no edit buttons)
         palette.colors.forEach((color, index) => {
             // Add color swatch
             const swatch = document.createElement('div');
@@ -641,20 +642,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 showColorInfoModal(index, color.hex);
             });
             
-            // Add edit button to code item
-            const editButtonCode = document.createElement('button');
-            editButtonCode.className = 'color-edit-button-small';
-            editButtonCode.innerHTML = '<i class="fas fa-edit"></i>';
-            editButtonCode.title = 'Edit color';
-            editButtonCode.addEventListener('click', (e) => {
-                e.stopPropagation();
-                showColorPicker(index, color.hex, swatch, codeItem);
-            });
-            
             codeItem.appendChild(colorDot);
             codeItem.appendChild(codeText);
             codeItem.appendChild(infoButtonCode);
-            codeItem.appendChild(editButtonCode);
             colorCodes.appendChild(codeItem);
         });
         
@@ -679,13 +669,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 .color-edit-button,
                 .color-info-button,
-                .harmony-button {
+                .harmony-button,
+                .color-lock-button {
                     position: absolute;
                     background-color: rgba(0, 0, 0, 0.6);
                     color: white;
                     border-radius: 50%;
-                    width: 32px;
-                    height: 32px;
+                    width: 36px;
+                    height: 36px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -694,6 +685,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     opacity: 0;
                     transition: all 0.3s ease;
                     font-size: 14px;
+                    padding: 0;
+                    margin: 0;
+                    line-height: 1;
                 }
                 .color-edit-button {
                     top: 14px;
@@ -701,37 +695,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 .color-info-button {
                     top: 14px;
-                    right: 54px;
+                    right: 58px;
                 }
                 .harmony-button {
                     top: 14px;
-                    right: 94px;
+                    right: 102px;
+                }
+                .color-lock-button {
+                    top: 14px;
+                    left: 14px;
                 }
                 .color-swatch:hover .color-edit-button,
                 .color-swatch:hover .color-info-button,
-                .color-swatch:hover .harmony-button {
+                .color-swatch:hover .harmony-button,
+                .color-swatch:hover .color-lock-button {
                     opacity: 0.8;
                 }
                 .color-edit-button:hover,
                 .color-info-button:hover,
-                .harmony-button:hover {
+                .harmony-button:hover,
+                .color-lock-button:hover {
                     opacity: 1 !important;
                     transform: scale(1.1);
                 }
-                .color-edit-button-small,
                 .color-info-button-small {
                     background: none;
                     border: none;
                     color: var(--text-secondary);
                     cursor: pointer;
-                    opacity: 0.6;
+                    opacity: 0.7;
                     transition: all 0.2s ease;
-                    padding: 4px;
+                    padding: 6px;
+                    margin-left: 8px;
+                    font-size: 16px;
                 }
-                .color-edit-button-small:hover,
                 .color-info-button-small:hover {
                     opacity: 1;
                     color: var(--primary-color);
+                    transform: scale(1.2);
                 }
             `;
             document.head.appendChild(styleElement);
