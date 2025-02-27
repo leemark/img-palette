@@ -615,6 +615,9 @@ document.addEventListener('DOMContentLoaded', () => {
             historyItem.addEventListener('click', () => {
                 currentPalette = palette;
                 displayPalette(palette);
+                
+                // Hide loading indicator and show palette container
+                loadingIndicator.hidden = true;
                 paletteContainer.hidden = false;
                 resultsSection.hidden = false;
                 
