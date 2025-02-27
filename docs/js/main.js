@@ -85,10 +85,54 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Image sampler event listener
     samplerOverlay.addEventListener('click', function(e) {
-        // This would normally get color at click position
-        // For simplicity, we'll just use a random color for demo
-        const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
-        updateColorPicker(randomColor);
+        // Get actual color from the image at click position
+        const samplerRect = samplerImage.getBoundingClientRect();
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        
+        // Set canvas size to match image
+        canvas.width = samplerImage.naturalWidth;
+        canvas.height = samplerImage.naturalHeight;
+        
+        // Draw image to canvas
+        context.drawImage(samplerImage, 0, 0, canvas.width, canvas.height);
+        
+        // Calculate relative position of click on the image
+        const scaleX = samplerImage.naturalWidth / samplerRect.width;
+        const scaleY = samplerImage.naturalHeight / samplerRect.height;
+        
+        // Get click coordinates relative to image content
+        const x = Math.max(0, Math.min(Math.floor((e.clientX - samplerRect.left) * scaleX), canvas.width - 1));
+        const y = Math.max(0, Math.min(Math.floor((e.clientY - samplerRect.top) * scaleY), canvas.height - 1));
+        
+        // Get pixel data
+        try {
+            const pixelData = context.getImageData(x, y, 1, 1).data;
+            const hexColor = rgbToHex(pixelData[0], pixelData[1], pixelData[2]);
+            updateColorPicker(hexColor);
+            
+            // Show visual feedback of where user clicked
+            const feedback = document.createElement('div');
+            feedback.style.position = 'absolute';
+            feedback.style.width = '10px';
+            feedback.style.height = '10px';
+            feedback.style.borderRadius = '50%';
+            feedback.style.backgroundColor = 'white';
+            feedback.style.border = '1px solid black';
+            feedback.style.left = `${e.clientX - samplerRect.left - 5}px`;
+            feedback.style.top = `${e.clientY - samplerRect.top - 5}px`;
+            feedback.style.pointerEvents = 'none';
+            
+            // Add and then remove the feedback element
+            samplerOverlay.parentNode.appendChild(feedback);
+            setTimeout(() => feedback.remove(), 500);
+            
+        } catch (error) {
+            console.error('Error picking color:', error);
+            // Fallback to random color if there's an error
+            const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+            updateColorPicker(randomColor);
+        }
     });
     
     // Drag and drop functionality
