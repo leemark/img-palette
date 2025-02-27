@@ -2,8 +2,8 @@
   /* Primary Palette */
   --dark-background: #030308;
   --light-text: #ffffff;
-  --primary-blue: #2563eb;
-  --accent-blue: #3b82f6;
+  --primary-blue: #D35400;
+  --accent-blue: #E67E22;
   
   /* Accent Colors */
   --instagram-pink: #E4405F;
@@ -18,7 +18,7 @@
   /* UI Colors */
   --primary-color: var(--primary-blue);
   --primary-light: var(--accent-blue);
-  --primary-dark: #1d4ed8;
+  --primary-dark: #B33C00;
   --text-color: var(--light-text);
   --text-secondary: rgba(255, 255, 255, 0.7);
   --bg-color: var(--dark-background);
@@ -41,7 +41,7 @@
 [data-theme="light"] {
   --primary-color: var(--primary-blue);
   --primary-light: var(--accent-blue);
-  --primary-dark: #1d4ed8;
+  --primary-dark: #B33C00;
   --text-color: #2d3748;
   --text-secondary: #4a5568;
   --bg-color: #f7f9fc;
@@ -110,8 +110,12 @@ header {
   text-transform: lowercase;
   transition: color var(--transition-normal);
   text-shadow: 
-    0 0 20px rgba(0, 102, 255, 0.3),
+    0 0 20px rgba(211, 84, 0, 0.3),
     0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] .logo h1 {
+  text-shadow: none;
 }
 
 .logo p {
@@ -119,6 +123,10 @@ header {
   font-size: 1rem;
   transition: color var(--transition-normal);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] .logo p {
+  text-shadow: none;
 }
 
 .header-actions {
@@ -153,8 +161,12 @@ h2 {
   margin-bottom: 2rem;
   color: var(--text-color);
   text-shadow: 
-    0 0 20px rgba(0, 102, 255, 0.3),
+    0 0 20px rgba(211, 84, 0, 0.3),
     0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] h2 {
+  text-shadow: none;
 }
 
 button {
@@ -241,6 +253,10 @@ button {
   margin-bottom: 2rem;
   color: var(--text-secondary);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] .upload-content p {
+  text-shadow: none;
 }
 
 .upload-button {
@@ -369,6 +385,10 @@ button {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+[data-theme="light"] .loading-indicator p {
+  text-shadow: none;
+}
+
 .palette-container {
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-lg);
@@ -391,8 +411,12 @@ button {
   text-align: center;
   color: var(--text-color);
   text-shadow: 
-    0 0 20px rgba(0, 102, 255, 0.3),
+    0 0 20px rgba(211, 84, 0, 0.3),
     0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] .palette-name {
+  text-shadow: none;
 }
 
 .palette-colors {
@@ -586,6 +610,10 @@ button {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+[data-theme="light"] .history-title {
+  text-shadow: none;
+}
+
 .history-date {
   font-size: 0.85rem;
   color: var(--text-secondary);
@@ -681,6 +709,10 @@ footer {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+[data-theme="light"] footer {
+  text-shadow: none;
+}
+
 footer a {
   color: var(--primary-color);
   text-decoration: none;
@@ -767,6 +799,10 @@ footer a:hover {
   font-size: 1.2rem;
   margin: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] .modal-title {
+  text-shadow: none;
 }
 
 .modal-close {
