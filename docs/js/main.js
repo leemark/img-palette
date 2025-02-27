@@ -1820,25 +1820,84 @@ document.addEventListener('DOMContentLoaded', () => {
         if (whiteText) whiteText.style.color = hexColor;
         if (blackText) blackText.style.color = hexColor;
         
-        // Update the contrast values
-        document.getElementById('contrast-white-value').textContent = whiteContrast.toFixed(2) + ':1';
-        document.getElementById('contrast-black-value').textContent = blackContrast.toFixed(2) + ':1';
+        // Update the contrast values with visual accessibility indicators
+        const whiteWcagStatus = getWcagStatus(whiteContrast);
+        const blackWcagStatus = getWcagStatus(blackContrast);
         
-        // WCAG guidelines
+        document.getElementById('contrast-white-value').innerHTML = 
+            `${whiteContrast.toFixed(2)}:1 ${getWcagStatusIcon(whiteWcagStatus)}`;
+        document.getElementById('contrast-black-value').innerHTML = 
+            `${blackContrast.toFixed(2)}:1 ${getWcagStatusIcon(blackWcagStatus)}`;
+            
+        // Apply status class for styling
+        document.getElementById('contrast-white-value').className = 
+            `contrast-value ${getWcagStatusClass(whiteWcagStatus)}`;
+        document.getElementById('contrast-black-value').className = 
+            `contrast-value ${getWcagStatusClass(blackWcagStatus)}`;
+        
+        // Determine the best option (highest contrast)
+        const bestOption = whiteContrast > blackContrast ? 'white' : 'black';
+        const highestContrast = Math.max(whiteContrast, blackContrast);
+        
+        // Set overall WCAG status
         let wcagText = '';
-        if (whiteContrast >= 4.5 || blackContrast >= 4.5) {
-            if (whiteContrast >= 7 || blackContrast >= 7) {
-                wcagText = 'AAA (Enhanced)';
-            } else {
-                wcagText = 'AA (Standard)';
-            }
-        } else if (whiteContrast >= 3 || blackContrast >= 3) {
+        if (highestContrast >= 7) {
+            wcagText = 'AAA (Enhanced)';
+        } else if (highestContrast >= 4.5) {
+            wcagText = 'AA (Standard)';
+        } else if (highestContrast >= 3) {
             wcagText = 'AA Large (Large Text Only)';
         } else {
             wcagText = 'Fails WCAG Requirements';
         }
         
-        document.getElementById('wcag-value').textContent = wcagText;
+        document.getElementById('wcag-value').textContent = 
+            `Best on ${bestOption}: ${wcagText}`;
+        
+        // Add indicator for best choice
+        document.getElementById(`contrast-on-${bestOption}`).classList.add('recommended');
+        document.getElementById(`contrast-on-${bestOption === 'white' ? 'black' : 'white'}`).classList.remove('recommended');
+    }
+    
+    // Helper function to determine WCAG status level from contrast ratio
+    function getWcagStatus(contrastRatio) {
+        if (contrastRatio >= 7) {
+            return 'aaa';
+        } else if (contrastRatio >= 4.5) {
+            return 'aa';
+        } else if (contrastRatio >= 3) {
+            return 'aa-large';
+        } else {
+            return 'fail';
+        }
+    }
+    
+    // Helper function to generate status icon based on WCAG level
+    function getWcagStatusIcon(status) {
+        switch (status) {
+            case 'aaa':
+                return '<span class="wcag-icon wcag-pass"><i class="fas fa-check-circle"></i> AAA</span>';
+            case 'aa':
+                return '<span class="wcag-icon wcag-pass"><i class="fas fa-check-circle"></i> AA</span>';
+            case 'aa-large':
+                return '<span class="wcag-icon wcag-partial"><i class="fas fa-exclamation-circle"></i> AA Large</span>';
+            default:
+                return '<span class="wcag-icon wcag-fail"><i class="fas fa-times-circle"></i> Fail</span>';
+        }
+    }
+    
+    // Helper function to get CSS class for contrast value styling
+    function getWcagStatusClass(status) {
+        switch (status) {
+            case 'aaa':
+                return 'wcag-aaa';
+            case 'aa':
+                return 'wcag-aa';
+            case 'aa-large':
+                return 'wcag-aa-large';
+            default:
+                return 'wcag-fail';
+        }
     }
     
     function getContrastRatio(color1, color2) {
