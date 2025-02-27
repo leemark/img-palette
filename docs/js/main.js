@@ -39,6 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // API endpoint - Cloudflare Worker URL
     const API_ENDPOINT = 'https://img-palette-api.leemark.workers.dev/generate-palette';
 
+    // Image resize settings
+    const resizeSettings = {
+        maxWidth: 1200,        // Maximum width in pixels
+        maxHeight: 1200,       // Maximum height in pixels
+        quality: 0.85,         // JPEG/WebP quality (0-1)
+        format: 'auto',        // 'auto', 'jpeg', 'png', 'webp'
+        sizeThreshold: 1024 * 1024  // Only resize images larger than 1MB
+    };
+
     // State
     let currentPalette = null;
     let paletteHistoryData = [];
@@ -226,8 +235,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('No image selected');
             }
             
+            // Resize the image before sending to the API
+            const resizedImageFile = await resizeImageIfNeeded(file);
+            
             const formData = new FormData();
-            formData.append('image', file);
+            formData.append('image', resizedImageFile);
             
             // Add locked colors to the request if any
             if (lockedColors.length > 0) {
@@ -304,6 +316,159 @@ document.addEventListener('DOMContentLoaded', () => {
             
             showToast(`Failed to generate palette: ${error.message}`, 'error');
         }
+    }
+
+    /**
+     * Resizes an image if it exceeds the maximum dimensions
+     * @param {File} imageFile - The original image file
+     * @param {Object} options - Resize options
+     * @param {number} options.maxWidth - Maximum width in pixels (default: 1200)
+     * @param {number} options.maxHeight - Maximum height in pixels (default: 1200)
+     * @param {number} options.quality - JPEG quality from 0 to 1 (default: 0.85)
+     * @param {string} options.format - Output format ('jpeg', 'png', 'webp') (default: 'jpeg')
+     * @param {number} options.sizeThreshold - Only resize images larger than this size in bytes
+     * @returns {Promise<File>} - Resized image as a File object
+     */
+    async function resizeImageIfNeeded(imageFile, options = {}) {
+        // Use settings from resizeSettings with any provided overrides
+        const { 
+            maxWidth = resizeSettings.maxWidth, 
+            maxHeight = resizeSettings.maxHeight, 
+            quality = resizeSettings.quality, 
+            format = resizeSettings.format,
+            sizeThreshold = resizeSettings.sizeThreshold
+        } = options;
+        
+        // Skip resizing if image is smaller than the size threshold
+        if (imageFile.size <= sizeThreshold) {
+            console.log(`Image size (${(imageFile.size / 1024).toFixed(1)}KB) is under threshold, skipping resize`);
+            return imageFile;
+        }
+        
+        // Determine the best format
+        let outputFormat = format.toLowerCase();
+        if (outputFormat === 'auto') {
+            // Check if the browser supports WebP
+            const supportsWebP = (() => {
+                const canvas = document.createElement('canvas');
+                if (!canvas || !canvas.getContext) return false;
+                return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+            })();
+            
+            // Use WebP when supported for better compression
+            outputFormat = supportsWebP ? 'webp' : 'jpeg';
+            console.log(`Auto-detected format: ${outputFormat} (WebP support: ${supportsWebP})`);
+        }
+        
+        // Read the image file
+        return new Promise((resolve, reject) => {
+            // Create a FileReader to read the file
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                // Create an image element to get the original dimensions
+                const img = new Image();
+                
+                img.onload = function() {
+                    // If the image is already smaller than maxWidth and maxHeight, return the original
+                    if (img.width <= maxWidth && img.height <= maxHeight) {
+                        resolve(imageFile);
+                        return;
+                    }
+                    
+                    // Calculate new dimensions while maintaining aspect ratio
+                    let newWidth = img.width;
+                    let newHeight = img.height;
+                    
+                    if (newWidth > maxWidth) {
+                        newHeight = Math.round(newHeight * (maxWidth / newWidth));
+                        newWidth = maxWidth;
+                    }
+                    
+                    if (newHeight > maxHeight) {
+                        newWidth = Math.round(newWidth * (maxHeight / newHeight));
+                        newHeight = maxHeight;
+                    }
+                    
+                    // Create a canvas element to draw the resized image
+                    const canvas = document.createElement('canvas');
+                    canvas.width = newWidth;
+                    canvas.height = newHeight;
+                    
+                    // Draw the resized image on the canvas
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                    
+                    // Get the mime type and extension based on format
+                    let mimeType, fileExtension;
+                    switch (outputFormat) {
+                        case 'png':
+                            mimeType = 'image/png';
+                            fileExtension = 'png';
+                            break;
+                        case 'webp':
+                            mimeType = 'image/webp';
+                            fileExtension = 'webp';
+                            break;
+                        case 'jpeg':
+                        case 'jpg':
+                        default:
+                            mimeType = 'image/jpeg';
+                            fileExtension = 'jpg';
+                            break;
+                    }
+                    
+                    // Convert canvas to blob
+                    canvas.toBlob((blob) => {
+                        if (!blob) {
+                            reject(new Error('Failed to create blob from canvas'));
+                            return;
+                        }
+                        
+                        // Create a new File from the blob
+                        const resizedFile = new File(
+                            [blob], 
+                            `resized-${Date.now()}.${fileExtension}`, 
+                            { type: mimeType }
+                        );
+                        
+                        // Log the size reduction
+                        const originalSize = imageFile.size / 1024; // KB
+                        const newSize = resizedFile.size / 1024; // KB
+                        const reduction = ((originalSize - newSize) / originalSize * 100).toFixed(1);
+                        
+                        console.log(`Image resized from ${img.width}x${img.height} to ${newWidth}x${newHeight}`);
+                        console.log(`Size reduced from ${originalSize.toFixed(1)}KB to ${newSize.toFixed(1)}KB (${reduction}% reduction)`);
+                        
+                        if (newSize < originalSize) {
+                            // Show a toast notification with the size reduction
+                            showToast(`Image optimized: ${reduction}% size reduction`, 'info');
+                        } else {
+                            // If the new size is larger (can happen with PNG), keep the original
+                            console.log('Resized image is larger, using original');
+                            resolve(imageFile);
+                            return;
+                        }
+                        
+                        resolve(resizedFile);
+                    }, mimeType, quality);
+                };
+                
+                img.onerror = function() {
+                    reject(new Error('Failed to load image'));
+                };
+                
+                // Set the image source to the FileReader result
+                img.src = event.target.result;
+            };
+            
+            reader.onerror = function() {
+                reject(new Error('Failed to read image file'));
+            };
+            
+            // Read the file as a data URL
+            reader.readAsDataURL(imageFile);
+        });
     }
 
     function displayPalette(palette) {
