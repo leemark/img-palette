@@ -822,16 +822,18 @@ footer a:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   z-index: 1000;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition-normal);
+  overflow-y: auto;
+  padding: 20px;
 }
 
 /* Make sure hidden elements are completely hidden */
@@ -842,6 +844,12 @@ footer a:hover {
 .modal-backdrop.show {
   opacity: 1;
   pointer-events: auto;
+}
+
+.modal-backdrop.show .color-picker-container {
+  transform: translateY(0);
+  opacity: 1;
+  margin: 40px auto;
 }
 
 .modal {
@@ -894,15 +902,21 @@ footer a:hover {
 }
 
 .modal-body {
-  padding: 20px;
+  padding: 24px;
+  overflow-y: auto;
+  max-height: calc(80vh - 130px);
 }
 
 .modal-footer {
-  padding: 16px 20px;
+  padding: 16px 24px;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 16px;
   border-top: 1px solid var(--border-color);
+  background-color: var(--card-color);
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
 }
 
 @media (max-width: 1200px) {
@@ -1094,7 +1108,7 @@ footer a:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
   display: flex;
@@ -1116,12 +1130,15 @@ footer a:hover {
   border-radius: var(--radius-lg);
   width: 90%;
   max-width: 800px;
+  max-height: 90vh;
   box-shadow: var(--shadow-lg);
   transform: translateY(20px);
   opacity: 0;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: 1px solid var(--border-color);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-backdrop.show .color-picker-container {
@@ -1163,14 +1180,20 @@ footer a:hover {
 
 .modal-body {
   padding: 24px;
+  overflow-y: auto;
+  max-height: calc(80vh - 130px);
 }
 
 .modal-footer {
-  padding: 16px 20px;
+  padding: 16px 24px;
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 16px;
   border-top: 1px solid var(--border-color);
+  background-color: var(--card-color);
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
 }
 
 .btn-primary {
@@ -1473,10 +1496,40 @@ footer a:hover {
 
 @media (max-width: 768px) {
     .harmony-types {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
     
     .harmony-type {
-        padding: 1rem;
+        padding: 12px;
+    }
+    
+    /* Add these new styles for better mobile modal experience */
+    .color-picker-container {
+        width: 95%;
+        max-height: 95vh;
+    }
+    
+    .modal-body {
+        padding: 16px;
+        max-height: calc(95vh - 120px);
+    }
+    
+    .modal-backdrop {
+        padding: 10px;
+    }
+}
+
+/* Add additional media query for very small screens */
+@media (max-width: 480px) {
+    .harmony-types {
+        grid-template-columns: 1fr;
+    }
+    
+    .color-picker-container {
+        width: 100%;
+    }
+    
+    .modal-backdrop.show .color-picker-container {
+        margin: 20px auto;
     }
 } 
