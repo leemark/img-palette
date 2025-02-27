@@ -266,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show loading state
         resultsSection.hidden = false;
         loadingIndicator.hidden = false;
+        loadingIndicator.style.display = 'flex'; // Explicitly set display to flex to ensure it's visible
         paletteContainer.hidden = true;
         
         // Clear any previous error messages
