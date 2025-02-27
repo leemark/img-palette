@@ -4,8 +4,6 @@ Color Format Options
 Export Options
     Allow exporting to CSS, SCSS, or design tool formats
     Provide downloadable swatches for Adobe/Sketch/Figma
-Image Handling
-    Provide image size optimization to improve upload speed
 Accessibility Improvements
     Enhance keyboard navigation
     Add screen reader descriptions for colors

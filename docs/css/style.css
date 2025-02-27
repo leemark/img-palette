@@ -407,12 +407,28 @@ button {
 
 .palette-name {
   font-size: 2rem;
-  margin-bottom: 2rem;
-  text-align: center;
   color: var(--text-color);
-  text-shadow: 
-    0 0 20px rgba(211, 84, 0, 0.3),
-    0 2px 4px rgba(0, 0, 0, 0.5);
+  margin-bottom: 0.25rem;
+  text-align: center;
+  font-weight: 700;
+  background: -webkit-linear-gradient(45deg, var(--primary-color), var(--primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.palette-description {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0 auto 1.5rem;
+  max-width: 80%;
+  line-height: 1.5;
+  font-size: 1.1rem;
+}
+
+[data-theme="light"] .palette-description {
+  color: var(--text-secondary);
 }
 
 [data-theme="light"] .palette-name {

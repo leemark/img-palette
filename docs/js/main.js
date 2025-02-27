@@ -475,6 +475,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Set palette name
         paletteName.textContent = palette.name;
         
+        // Set palette description if available
+        const paletteDescription = document.getElementById('palette-description');
+        if (palette.description) {
+            paletteDescription.textContent = palette.description;
+            paletteDescription.style.display = 'block';
+        } else {
+            paletteDescription.style.display = 'none';
+        }
+        
         // Clear previous palette
         paletteColors.innerHTML = '';
         colorCodes.innerHTML = '';

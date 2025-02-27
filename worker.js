@@ -218,7 +218,7 @@ async function generatePalette(request) {
     });
     
     // Create prompt for Gemini
-    const prompt = "Analyze this image and extract a harmonious color palette of 5 colors that represents the key colors in the image. For each color, provide the hex code. Also, suggest a creative name for this palette that evokes the mood or theme of the image. Return the result as JSON in this format: {\"name\": \"Palette Name\", \"colors\": [{\"hex\": \"#XXXXXX\"}, ...]}";
+    const prompt = "Analyze this image and extract a harmonious color palette of 5 colors that represents the key colors in the image. For each color, provide the hex code. Also, suggest a creative name for this palette that evokes the mood or theme of the image. Additionally, write a brief, lyrical and poetic description (1-2 sentences) that captures the essence of the palette and relates to the theme or content of the source image. Return the result as JSON in this format: {\"name\": \"Palette Name\", \"description\": \"Your poetic description here\", \"colors\": [{\"hex\": \"#XXXXXX\"}, ...]}";
     
     console.log('Preparing image for Gemini API...');
     
