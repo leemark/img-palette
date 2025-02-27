@@ -48,7 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
         index: null,
         originalHex: null,
         element: null,
-        codeElement: null
+        codeElement: null,
+        resetToOriginal: true
     };
     let lockedColors = [];
     let currentHarmonyType = null;
@@ -777,10 +778,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Store current editing state
-        currentEditingColor.index = index;
-        currentEditingColor.originalHex = hexColor;
-        currentEditingColor.element = swatchElement;
-        currentEditingColor.codeElement = codeElement;
+        currentEditingColor = {
+            index: index,
+            originalHex: hexColor,
+            element: swatchElement,
+            codeElement: codeElement,
+            resetToOriginal: true
+        };
         
         // Update color picker
         updateColorPicker(hexColor);
@@ -798,8 +802,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             colorPickerModal.hidden = true;
             
-            // Reset color to original if canceled
-            if (currentEditingColor.element) {
+            // Only reset color to original if canceled - not when applied
+            if (currentEditingColor.resetToOriginal && currentEditingColor.element) {
                 currentEditingColor.element.style.backgroundColor = currentEditingColor.originalHex;
                 
                 // Also update code element if exists
@@ -816,7 +820,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 index: null,
                 originalHex: null,
                 element: null,
-                codeElement: null
+                codeElement: null,
+                resetToOriginal: true
             };
         }, 300);
     }
@@ -920,6 +925,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Get the current color from colorPickerInstance (this ensures we get the most up-to-date value)
         const newColor = colorPickerInstance.color.hexString;
         console.log('Applying new color:', newColor); // Debug logging
+        
+        // Set flag to prevent resetting to original color when hiding
+        currentEditingColor.resetToOriginal = false;
         
         // Update palette data
         if (currentPalette && currentPalette.colors[currentEditingColor.index]) {
