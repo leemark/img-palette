@@ -24,6 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelDeleteButton = document.getElementById('cancel-delete');
     const confirmDeleteButton = document.getElementById('confirm-delete');
     
+    // Color format elements
+    const colorFormatSelect = document.getElementById('color-format');
+    
     // Color picker elements
     const colorPickerModal = document.getElementById('color-picker-modal');
     const closeColorPickerButton = document.getElementById('close-color-picker');
@@ -35,7 +38,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const bInput = document.getElementById('b-input');
     const samplerImage = document.getElementById('sampler-image');
     const samplerOverlay = document.querySelector('.image-sampler-overlay');
-
+    
+    // Color info modal elements
+    const colorInfoModal = document.getElementById('color-info-modal');
+    const closeColorInfoButton = document.getElementById('close-color-info');
+    const closeColorInfoBtn = document.getElementById('close-color-info-btn');
+    const editInColorPickerButton = document.getElementById('edit-in-color-picker');
+    const addToLockedButton = document.getElementById('add-to-locked');
+    const infoColorSwatch = document.getElementById('info-color-swatch');
+    const infoColorLabel = document.getElementById('info-color-label');
+    const infoHexValue = document.getElementById('info-hex-value');
+    const infoRgbValue = document.getElementById('info-rgb-value');
+    const infoHslValue = document.getElementById('info-hsl-value');
+    const infoCmykValue = document.getElementById('info-cmyk-value');
+    const copyValueButtons = document.querySelectorAll('.copy-value-btn');
+    
     // API endpoint - Cloudflare Worker URL
     const API_ENDPOINT = 'https://img-palette-api.leemark.workers.dev/generate-palette';
 
@@ -64,11 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentHarmonyType = null;
     let currentHarmonyBaseColor = null;
     let harmonyPalette = [];
+    let currentColorFormat = 'hex'; // Track the selected color format
+    let currentInfoColor = null; // Track the current color being displayed in the info modal
 
     // Initialize
     initTheme();
     loadPaletteHistory();
     initColorPicker();
+    initColorFormat();
 
     // Event Listeners
     uploadButton.addEventListener('click', () => uploadInput.click());
@@ -162,6 +182,31 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadInput.files = e.dataTransfer.files;
             handleImageUpload({ target: uploadInput });
         }
+    });
+
+    // Color format selector event listener
+    colorFormatSelect.addEventListener('change', () => {
+        currentColorFormat = colorFormatSelect.value;
+        updateColorCodesDisplay();
+        
+        // Store preference in localStorage
+        localStorage.setItem('preferredColorFormat', currentColorFormat);
+        
+        showToast(`Changed color format to ${currentColorFormat.toUpperCase()}`, 'info');
+    });
+    
+    // Color info modal event listeners
+    closeColorInfoButton.addEventListener('click', hideColorInfoModal);
+    closeColorInfoBtn.addEventListener('click', hideColorInfoModal);
+    editInColorPickerButton.addEventListener('click', editColorFromInfoModal);
+    addToLockedButton.addEventListener('click', lockColorFromInfoModal);
+    
+    // Copy value buttons in color info modal
+    copyValueButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const format = button.getAttribute('data-value');
+            copyColorValueToClipboard(format);
+        });
     });
 
     // Functions
@@ -540,6 +585,17 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             swatch.appendChild(editButton);
             
+            // Add info button to swatch
+            const infoButton = document.createElement('button');
+            infoButton.className = 'color-info-button';
+            infoButton.innerHTML = '<i class="fas fa-info-circle"></i>';
+            infoButton.title = 'Color information';
+            infoButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showColorInfoModal(index, color.hex);
+            });
+            swatch.appendChild(infoButton);
+            
             // Add harmony button (after lock button creation)
             const harmonyButton = document.createElement('button');
             harmonyButton.className = 'harmony-button';
@@ -564,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
             colorDot.style.backgroundColor = color.hex;
             
             const codeText = document.createElement('span');
-            codeText.textContent = color.hex;
+            codeText.textContent = formatColorValue(color.hex, currentColorFormat);
             
             // Add locked indicator to code item if needed
             if (isLocked) {
@@ -573,6 +629,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 lockedBadge.innerHTML = '<i class="fas fa-lock"></i>';
                 codeItem.appendChild(lockedBadge);
             }
+            
+            // Add info button to code item
+            const infoButtonCode = document.createElement('button');
+            infoButtonCode.className = 'color-info-button-small';
+            infoButtonCode.innerHTML = '<i class="fas fa-info-circle"></i>';
+            infoButtonCode.title = 'Color information';
+            infoButtonCode.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showColorInfoModal(index, color.hex);
+            });
             
             // Add edit button to code item
             const editButtonCode = document.createElement('button');
@@ -586,6 +652,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             codeItem.appendChild(colorDot);
             codeItem.appendChild(codeText);
+            codeItem.appendChild(infoButtonCode);
             codeItem.appendChild(editButtonCode);
             colorCodes.appendChild(codeItem);
         });
@@ -601,18 +668,18 @@ document.addEventListener('DOMContentLoaded', () => {
             colorCodes.appendChild(regenerateInfo);
         }
         
-        // Add CSS for edit buttons
-        if (!document.getElementById('edit-button-styles')) {
+        // Add CSS for buttons
+        if (!document.getElementById('swatch-button-styles')) {
             const styleElement = document.createElement('style');
-            styleElement.id = 'edit-button-styles';
+            styleElement.id = 'swatch-button-styles';
             styleElement.textContent = `
                 .color-swatch {
                     position: relative;
                 }
-                .color-edit-button {
+                .color-edit-button,
+                .color-info-button,
+                .harmony-button {
                     position: absolute;
-                    top: 14px;
-                    right: 14px;
                     background-color: rgba(0, 0, 0, 0.6);
                     color: white;
                     border-radius: 50%;
@@ -627,24 +694,41 @@ document.addEventListener('DOMContentLoaded', () => {
                     transition: all 0.3s ease;
                     font-size: 14px;
                 }
-                .color-swatch:hover .color-edit-button {
+                .color-edit-button {
+                    top: 14px;
+                    right: 14px;
+                }
+                .color-info-button {
+                    top: 14px;
+                    right: 54px;
+                }
+                .harmony-button {
+                    top: 14px;
+                    right: 94px;
+                }
+                .color-swatch:hover .color-edit-button,
+                .color-swatch:hover .color-info-button,
+                .color-swatch:hover .harmony-button {
                     opacity: 0.8;
                 }
-                .color-edit-button:hover {
+                .color-edit-button:hover,
+                .color-info-button:hover,
+                .harmony-button:hover {
                     opacity: 1 !important;
                     transform: scale(1.1);
                 }
-                .color-edit-button-small {
+                .color-edit-button-small,
+                .color-info-button-small {
                     background: none;
                     border: none;
                     color: var(--text-secondary);
                     cursor: pointer;
-                    margin-left: auto;
                     opacity: 0.6;
                     transition: all 0.2s ease;
                     padding: 4px;
                 }
-                .color-edit-button-small:hover {
+                .color-edit-button-small:hover,
+                .color-info-button-small:hover {
                     opacity: 1;
                     color: var(--primary-color);
                 }
@@ -1512,6 +1596,320 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         
         return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    }
+
+    // Color Format Functions
+    function initColorFormat() {
+        // Load saved preference if available
+        const savedFormat = localStorage.getItem('preferredColorFormat');
+        if (savedFormat) {
+            currentColorFormat = savedFormat;
+            colorFormatSelect.value = savedFormat;
+        }
+    }
+    
+    function updateColorCodesDisplay() {
+        if (!currentPalette) return;
+        
+        const colorItems = colorCodes.querySelectorAll('.color-code-item');
+        
+        colorItems.forEach((item, index) => {
+            const colorHex = item.getAttribute('data-color');
+            const codeText = item.querySelector('span:not(.color-dot):not(.color-locked-badge)');
+            
+            if (codeText) {
+                codeText.textContent = formatColorValue(colorHex, currentColorFormat);
+            }
+        });
+    }
+    
+    function formatColorValue(hexColor, format) {
+        // Ensure hexColor is valid
+        if (!hexColor || typeof hexColor !== 'string') {
+            return 'Invalid color';
+        }
+        
+        // Normalize hex color to ensure it has the # prefix
+        if (!hexColor.startsWith('#')) {
+            hexColor = '#' + hexColor;
+        }
+        
+        // Format based on specified format
+        switch (format) {
+            case 'hex':
+                return hexColor;
+                
+            case 'rgb':
+                const rgb = hexToRgb(hexColor);
+                return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+                
+            case 'hsl':
+                const hsl = hexToHSL(hexColor);
+                return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+                
+            case 'cmyk':
+                const cmyk = hexToCMYK(hexColor);
+                return `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)`;
+                
+            default:
+                return hexColor;
+        }
+    }
+    
+    function hexToRgb(hex) {
+        // Remove # if present
+        hex = hex.replace(/^#/, '');
+        
+        // Parse hex values
+        let r, g, b;
+        
+        if (hex.length === 3) {
+            // Short notation (e.g. #F00)
+            r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
+            g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
+            b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
+        } else {
+            // Standard notation (e.g. #FF0000)
+            r = parseInt(hex.substring(0, 2), 16);
+            g = parseInt(hex.substring(2, 4), 16);
+            b = parseInt(hex.substring(4, 6), 16);
+        }
+        
+        return { r, g, b };
+    }
+    
+    function hexToCMYK(hex) {
+        // Convert hex to RGB first
+        const rgb = hexToRgb(hex);
+        
+        // Convert RGB to CMYK
+        let c, m, y, k;
+        
+        // Normalize RGB values to range 0-1
+        const r = rgb.r / 255;
+        const g = rgb.g / 255;
+        const b = rgb.b / 255;
+        
+        k = 1 - Math.max(r, g, b);
+        
+        if (k === 1) {
+            // Pure black
+            c = m = y = 0;
+        } else {
+            c = (1 - r - k) / (1 - k);
+            m = (1 - g - k) / (1 - k);
+            y = (1 - b - k) / (1 - k);
+        }
+        
+        // Convert to percentages
+        c = Math.round(c * 100);
+        m = Math.round(m * 100);
+        y = Math.round(y * 100);
+        k = Math.round(k * 100);
+        
+        return { c, m, y, k };
+    }
+    
+    // Color info modal functions
+    function showColorInfoModal(index, hexColor) {
+        if (!hexColor) return;
+        
+        currentInfoColor = {
+            index: index,
+            hex: hexColor
+        };
+        
+        // Update the swatch and label
+        infoColorSwatch.style.backgroundColor = hexColor;
+        infoColorLabel.textContent = hexColor;
+        
+        // Update color values
+        infoHexValue.textContent = hexColor;
+        
+        const rgb = hexToRgb(hexColor);
+        infoRgbValue.textContent = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+        
+        const hsl = hexToHSL(hexColor);
+        infoHslValue.textContent = `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
+        
+        const cmyk = hexToCMYK(hexColor);
+        infoCmykValue.textContent = `cmyk(${cmyk.c}%, ${cmyk.m}%, ${cmyk.y}%, ${cmyk.k}%)`;
+        
+        // Generate color variations
+        const variations = document.querySelectorAll('.color-variation');
+        
+        // Lighter 50%
+        variations[0].style.backgroundColor = getLighterColor(hexColor, 0.5);
+        // Lighter 25%
+        variations[1].style.backgroundColor = getLighterColor(hexColor, 0.25);
+        // Original
+        variations[2].style.backgroundColor = hexColor;
+        // Darker 25%
+        variations[3].style.backgroundColor = getDarkerColor(hexColor, 0.25);
+        // Darker 50%
+        variations[4].style.backgroundColor = getDarkerColor(hexColor, 0.5);
+        
+        // Calculate contrast
+        calculateContrast(hexColor);
+        
+        // Update lock/unlock button text based on whether the color is locked
+        const isLocked = lockedColors.some(lc => lc.index === index);
+        if (isLocked) {
+            addToLockedButton.textContent = 'Unlock Color';
+        } else {
+            addToLockedButton.textContent = 'Lock Color';
+        }
+        
+        // Show the modal
+        colorInfoModal.hidden = false;
+        setTimeout(() => {
+            colorInfoModal.classList.add('show');
+        }, 10);
+    }
+    
+    function hideColorInfoModal() {
+        colorInfoModal.classList.remove('show');
+        setTimeout(() => {
+            colorInfoModal.hidden = true;
+            currentInfoColor = null;
+        }, 300);
+    }
+    
+    function editColorFromInfoModal() {
+        if (!currentInfoColor) return;
+        
+        // Hide the info modal
+        hideColorInfoModal();
+        
+        // Get the swatch element
+        const swatch = document.querySelector(`.color-swatch[data-index="${currentInfoColor.index}"]`);
+        
+        // Show the color picker modal with this color
+        if (swatch) {
+            const codeItem = document.querySelector(`.color-code-item[data-index="${currentInfoColor.index}"]`);
+            showColorPicker(currentInfoColor.index, currentInfoColor.hex, swatch, codeItem);
+        }
+    }
+    
+    function lockColorFromInfoModal() {
+        if (!currentInfoColor) return;
+        
+        const lockButton = document.querySelector(`.color-swatch[data-index="${currentInfoColor.index}"] .color-lock-button`);
+        const swatch = document.querySelector(`.color-swatch[data-index="${currentInfoColor.index}"]`);
+        
+        if (lockButton && swatch) {
+            toggleColorLock(currentInfoColor.index, currentInfoColor.hex, lockButton, swatch);
+            
+            // Update the button text
+            const isLocked = lockedColors.some(lc => lc.index === currentInfoColor.index);
+            addToLockedButton.textContent = isLocked ? 'Unlock Color' : 'Lock Color';
+        }
+    }
+    
+    function calculateContrast(hexColor) {
+        // Get the contrast ratio with white and black
+        const whiteContrast = getContrastRatio(hexColor, '#FFFFFF');
+        const blackContrast = getContrastRatio(hexColor, '#000000');
+        
+        // Update the contrast samples
+        const whiteText = document.querySelector('#contrast-on-white .contrast-sample-inner');
+        const blackText = document.querySelector('#contrast-on-black .contrast-sample-inner');
+        
+        if (whiteText) whiteText.style.color = hexColor;
+        if (blackText) blackText.style.color = hexColor;
+        
+        // Update the contrast values
+        document.getElementById('contrast-white-value').textContent = whiteContrast.toFixed(2) + ':1';
+        document.getElementById('contrast-black-value').textContent = blackContrast.toFixed(2) + ':1';
+        
+        // WCAG guidelines
+        let wcagText = '';
+        if (whiteContrast >= 4.5 || blackContrast >= 4.5) {
+            if (whiteContrast >= 7 || blackContrast >= 7) {
+                wcagText = 'AAA (Enhanced)';
+            } else {
+                wcagText = 'AA (Standard)';
+            }
+        } else if (whiteContrast >= 3 || blackContrast >= 3) {
+            wcagText = 'AA Large (Large Text Only)';
+        } else {
+            wcagText = 'Fails WCAG Requirements';
+        }
+        
+        document.getElementById('wcag-value').textContent = wcagText;
+    }
+    
+    function getContrastRatio(color1, color2) {
+        // Convert colors to luminance values
+        const lum1 = getLuminance(color1);
+        const lum2 = getLuminance(color2);
+        
+        // Calculate contrast ratio
+        const lightest = Math.max(lum1, lum2);
+        const darkest = Math.min(lum1, lum2);
+        
+        return (lightest + 0.05) / (darkest + 0.05);
+    }
+    
+    function getLuminance(hexColor) {
+        const rgb = hexToRgb(hexColor);
+        
+        // Convert RGB to linear values
+        let r = rgb.r / 255;
+        let g = rgb.g / 255;
+        let b = rgb.b / 255;
+        
+        // Apply gamma correction
+        r = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+        g = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+        b = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+        
+        // Calculate luminance (per WCAG 2.0)
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+    
+    function getLighterColor(hexColor, amount) {
+        const hsl = hexToHSL(hexColor);
+        const newL = Math.min(100, hsl.l + (100 - hsl.l) * amount);
+        return hslToHex(hsl.h, hsl.s, newL);
+    }
+    
+    function getDarkerColor(hexColor, amount) {
+        const hsl = hexToHSL(hexColor);
+        const newL = Math.max(0, hsl.l - (hsl.l * amount));
+        return hslToHex(hsl.h, hsl.s, newL);
+    }
+    
+    function copyColorValueToClipboard(format) {
+        if (!currentInfoColor) return;
+        
+        let valueToCopy;
+        
+        switch (format) {
+            case 'hex':
+                valueToCopy = infoHexValue.textContent;
+                break;
+            case 'rgb':
+                valueToCopy = infoRgbValue.textContent;
+                break;
+            case 'hsl':
+                valueToCopy = infoHslValue.textContent;
+                break;
+            case 'cmyk':
+                valueToCopy = infoCmykValue.textContent;
+                break;
+            default:
+                valueToCopy = currentInfoColor.hex;
+        }
+        
+        navigator.clipboard.writeText(valueToCopy)
+            .then(() => {
+                showToast(`Copied ${format.toUpperCase()} value to clipboard`, 'success');
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                showToast('Failed to copy color value', 'error');
+            });
     }
 
 });

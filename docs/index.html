@@ -67,6 +67,15 @@
                 <div class="palette-info">
                     <div class="color-codes" id="color-codes"></div>
                     <div class="palette-actions">
+                        <div class="color-format-selector">
+                            <label for="color-format">Format:</label>
+                            <select id="color-format" class="color-format-select" aria-label="Select color format">
+                                <option value="hex">HEX</option>
+                                <option value="rgb">RGB</option>
+                                <option value="hsl">HSL</option>
+                                <option value="cmyk">CMYK</option>
+                            </select>
+                        </div>
                         <button id="copy-palette" class="action-button" title="Copy all colors">
                             <i class="fas fa-copy"></i> Copy All
                         </button>
@@ -88,7 +97,7 @@
     </main>
     
     <footer>
-        <p>&copy; 2025 Mark Lee</p>
+        <p>&copy; 2025 <a href="https://themarklee.com/" target="_blank">Mark Lee</a></p>
     </footer>
 
     <!-- Toast notification -->
@@ -237,6 +246,96 @@
             <div class="modal-footer">
                 <button class="btn-cancel" id="cancel-harmony">Cancel</button>
                 <button class="btn-primary" id="apply-harmony">Apply Harmony</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Color information modal -->
+    <div class="modal-backdrop" id="color-info-modal" hidden>
+        <div class="color-info-container">
+            <div class="modal-header">
+                <h3 class="modal-title">Color Information</h3>
+                <button class="modal-close" id="close-color-info">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="color-info-preview">
+                    <div class="color-info-swatch" id="info-color-swatch"></div>
+                    <div class="color-info-label" id="info-color-label">#FFFFFF</div>
+                </div>
+                
+                <div class="color-info-details">
+                    <div class="color-info-section">
+                        <h4>Color Values</h4>
+                        <div class="color-values-table">
+                            <div class="color-value-row">
+                                <span class="color-value-type">HEX</span>
+                                <span class="color-value" id="info-hex-value">#FFFFFF</span>
+                                <button class="copy-value-btn" data-value="hex"><i class="fas fa-copy"></i></button>
+                            </div>
+                            <div class="color-value-row">
+                                <span class="color-value-type">RGB</span>
+                                <span class="color-value" id="info-rgb-value">rgb(255, 255, 255)</span>
+                                <button class="copy-value-btn" data-value="rgb"><i class="fas fa-copy"></i></button>
+                            </div>
+                            <div class="color-value-row">
+                                <span class="color-value-type">HSL</span>
+                                <span class="color-value" id="info-hsl-value">hsl(0, 0%, 100%)</span>
+                                <button class="copy-value-btn" data-value="hsl"><i class="fas fa-copy"></i></button>
+                            </div>
+                            <div class="color-value-row">
+                                <span class="color-value-type">CMYK</span>
+                                <span class="color-value" id="info-cmyk-value">cmyk(0%, 0%, 0%, 0%)</span>
+                                <button class="copy-value-btn" data-value="cmyk"><i class="fas fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="color-info-section">
+                        <h4>Color Variations</h4>
+                        <div class="color-variations" id="color-variations">
+                            <div class="color-variation" id="variation-lighter-50"></div>
+                            <div class="color-variation" id="variation-lighter-25"></div>
+                            <div class="color-variation" id="variation-original"></div>
+                            <div class="color-variation" id="variation-darker-25"></div>
+                            <div class="color-variation" id="variation-darker-50"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="color-info-section">
+                        <h4>Accessibility</h4>
+                        <div class="color-contrast-info">
+                            <div class="contrast-samples">
+                                <div class="contrast-sample" id="contrast-on-white">
+                                    <div class="contrast-sample-inner">Aa</div>
+                                </div>
+                                <div class="contrast-sample" id="contrast-on-black">
+                                    <div class="contrast-sample-inner">Aa</div>
+                                </div>
+                            </div>
+                            <div class="contrast-values">
+                                <div class="contrast-value-row">
+                                    <span>On white:</span>
+                                    <span id="contrast-white-value">-</span>
+                                </div>
+                                <div class="contrast-value-row">
+                                    <span>On black:</span>
+                                    <span id="contrast-black-value">-</span>
+                                </div>
+                                <div class="contrast-value-row" id="wcag-info">
+                                    <span>WCAG:</span>
+                                    <span id="wcag-value">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="edit-in-color-picker">Edit Color</button>
+                <button class="btn-secondary" id="add-to-locked">Lock Color</button>
+                <button class="btn-cancel" id="close-color-info-btn">Close</button>
             </div>
         </div>
     </div>
