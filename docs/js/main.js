@@ -822,28 +822,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateColorPicker(hexColor) {
+        // Ensure the color is a valid hex format
+        if (!hexColor.startsWith('#')) {
+            hexColor = '#' + hexColor;
+        }
+        
+        // Normalize to 6 character hex (in case of shorthand like #f00)
+        if (hexColor.length === 4) {
+            const r = hexColor[1];
+            const g = hexColor[2];
+            const b = hexColor[3];
+            hexColor = `#${r}${r}${g}${g}${b}${b}`;
+        }
+        
+        console.log('Updating color picker to:', hexColor); // Debug logging
+        
+        // Update the color picker component
         if (colorPickerInstance) {
             colorPickerInstance.color.hexString = hexColor;
+            
+            // Make sure the inputs are updated even if the event doesn't fire
             updateColorInputs(colorPickerInstance.color);
         }
     }
 
     function updateColorInputs(color) {
+        // Extract the hexString from the color object
+        const hexColor = color.hexString;
+        console.log('Updating color inputs with:', hexColor); // Debug logging
+        
         // Update text inputs
-        hexInput.value = color.hexString.substring(1); // Remove # prefix
+        hexInput.value = hexColor.substring(1); // Remove # prefix
         rInput.value = Math.round(color.rgb.r);
         gInput.value = Math.round(color.rgb.g);
         bInput.value = Math.round(color.rgb.b);
         
-        // Update preview
+        // Update visual preview in the swatch element
         if (currentEditingColor.element) {
-            currentEditingColor.element.style.backgroundColor = color.hexString;
+            // Update the actual background color
+            currentEditingColor.element.style.backgroundColor = hexColor;
+            
+            // Also update the color code text inside the swatch
+            const colorCode = currentEditingColor.element.querySelector('.color-code');
+            if (colorCode) {
+                colorCode.textContent = hexColor;
+            }
             
             // Also update code element if exists
             if (currentEditingColor.codeElement) {
+                // Update the color dot
                 const colorDot = currentEditingColor.codeElement.querySelector('.color-dot');
                 if (colorDot) {
-                    colorDot.style.backgroundColor = color.hexString;
+                    colorDot.style.backgroundColor = hexColor;
+                }
+                
+                // Update the text content
+                const codeText = currentEditingColor.codeElement.querySelector('span:not(.color-dot):not(.color-locked-badge)');
+                if (codeText) {
+                    codeText.textContent = hexColor;
                 }
             }
         }
@@ -881,15 +917,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyColorEdit() {
         if (currentEditingColor.index === null) return;
         
+        // Get the current color from colorPickerInstance (this ensures we get the most up-to-date value)
         const newColor = colorPickerInstance.color.hexString;
+        console.log('Applying new color:', newColor); // Debug logging
         
         // Update palette data
         if (currentPalette && currentPalette.colors[currentEditingColor.index]) {
+            // Update the color in the palette data
             currentPalette.colors[currentEditingColor.index].hex = newColor;
             
             // Update UI elements
             const swatch = currentEditingColor.element;
             if (swatch) {
+                // Update the background color
                 swatch.style.backgroundColor = newColor;
                 swatch.setAttribute('data-color', newColor);
                 
@@ -900,16 +940,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // Update code item
+            // Update code item in the color codes section
             const codeElement = document.querySelector(`.color-code-item[data-index="${currentEditingColor.index}"]`);
             if (codeElement) {
                 codeElement.setAttribute('data-color', newColor);
                 
+                // Update the color dot
                 const colorDot = codeElement.querySelector('.color-dot');
                 if (colorDot) {
                     colorDot.style.backgroundColor = newColor;
                 }
                 
+                // Update the text content
                 const codeText = codeElement.querySelector('span:not(.color-dot):not(.color-locked-badge)');
                 if (codeText) {
                     codeText.textContent = newColor;
