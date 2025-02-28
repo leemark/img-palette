@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteConfirmationModal = document.getElementById('delete-confirmation-modal');
     const cancelDeleteButton = document.getElementById('cancel-delete');
     const confirmDeleteButton = document.getElementById('confirm-delete');
+    const header = document.querySelector('header');
     
     // Color format elements
     const colorFormatSelect = document.getElementById('color-format');
@@ -86,9 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize
     initTheme();
-    loadPaletteHistory();
     initColorPicker();
     initColorFormat();
+    initStickyHeader();
+    loadPaletteHistory();
+    displayPaletteHistory();
 
     // Event Listeners
     uploadButton.addEventListener('click', () => uploadInput.click());
@@ -1971,6 +1974,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Failed to copy: ', err);
                 showToast('Failed to copy color value', 'error');
             });
+    }
+
+    // Initialize sticky header
+    function initStickyHeader() {
+        // Initial check on page load
+        checkScrollPosition();
+        
+        // Add scroll event listener
+        window.addEventListener('scroll', checkScrollPosition);
+    }
+    
+    // Check scroll position and toggle sticky class
+    function checkScrollPosition() {
+        const scrollPosition = window.scrollY;
+        
+        // Add or remove sticky class based on scroll position
+        // Using 50px as threshold for when to activate the sticky header
+        if (scrollPosition > 50) {
+            header.classList.add('sticky');
+        } else {
+            header.classList.remove('sticky');
+        }
     }
 
 });
