@@ -82,14 +82,22 @@ main {
 }
 
 header {
-  background-color: rgba(255, 255, 255, 0.03);
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(211, 84, 0, 0.05));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: var(--shadow-md);
-  padding: 1.5rem 0;
-  margin-bottom: 4rem;
-  transition: background-color var(--transition-normal);
-  border-bottom: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  padding: 1.25rem 0;
+  margin-bottom: 3rem;
+  transition: all var(--transition-normal);
+  border-bottom: 1px solid rgba(211, 84, 0, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+[data-theme="light"] header {
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(211, 84, 0, 0.05));
+  border-bottom: 1px solid rgba(211, 84, 0, 0.2);
 }
 
 .header-content {
@@ -98,23 +106,35 @@ header {
   padding: 0 2rem;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .header-logo {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.header-logo:hover {
+  transform: scale(1.1);
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
 }
 
 .logo h1 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 2.2rem;
+  margin: 0;
   color: var(--primary-color);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -123,21 +143,25 @@ header {
   text-shadow: 
     0 0 20px rgba(211, 84, 0, 0.3),
     0 2px 4px rgba(0, 0, 0, 0.5);
+  line-height: 1.1;
 }
 
 [data-theme="light"] .logo h1 {
-  text-shadow: none;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .logo p {
   color: var(--text-secondary);
-  font-size: 1rem;
+  font-size: 0.9rem;
+  margin: 0;
   transition: color var(--transition-normal);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  max-width: 300px;
 }
 
 [data-theme="light"] .logo p {
   text-shadow: none;
+  color: var(--text-secondary);
 }
 
 .header-actions {
@@ -149,16 +173,17 @@ header {
 .theme-toggle, .github-link {
   background: rgba(255, 255, 255, 0.1);
   border: none;
-  color: var(--text-secondary);
-  font-size: 1.25rem;
-  cursor: pointer;
   width: 40px;
   height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  cursor: pointer;
   transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm);
 }
 
 .theme-toggle:hover, .github-link:hover {
@@ -967,7 +992,7 @@ footer a:hover {
 
 @media (max-width: 1200px) {
   .logo h1 {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
   
   h2 {
@@ -976,14 +1001,30 @@ footer a:hover {
 }
 
 @media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    text-align: center;
-    gap: 12px;
+  header {
+    padding: 1rem 0;
   }
-
+  
+  .header-content {
+    padding: 0 1.5rem;
+  }
+  
+  .logo {
+    gap: 0.75rem;
+  }
+  
+  .header-logo {
+    width: 36px;
+    height: 36px;
+  }
+  
   .logo h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
+  }
+  
+  .logo p {
+    font-size: 0.8rem;
+    max-width: 220px;
   }
   
   .upload-container {
@@ -1010,8 +1051,37 @@ footer a:hover {
 }
 
 @media (max-width: 480px) {
+  header {
+    padding: 0.75rem 0;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .logo {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .logo-text {
+    align-items: center;
+  }
+  
+  .header-logo {
+    width: 32px;
+    height: 32px;
+  }
+  
   .logo h1 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
+  }
+  
+  .logo p {
+    font-size: 0.75rem;
+    max-width: 100%;
   }
 
   .color-codes {
@@ -1024,6 +1094,7 @@ footer a:hover {
   
   main {
     padding: 0 1rem 3rem;
+    margin-top: 1rem;
   }
 }
 
