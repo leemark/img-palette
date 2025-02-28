@@ -1981,19 +1981,34 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initial check on page load
         checkScrollPosition();
         
-        // Add scroll event listener
-        window.addEventListener('scroll', checkScrollPosition);
+        // Add scroll event listener with throttling to improve performance
+        let lastScrollTime = 0;
+        const scrollThrottle = 10; // Only process scroll events every 10ms
+        
+        window.addEventListener('scroll', () => {
+            const now = Date.now();
+            if (now - lastScrollTime >= scrollThrottle) {
+                lastScrollTime = now;
+                checkScrollPosition();
+            }
+        });
     }
     
     // Check scroll position and toggle sticky class
     function checkScrollPosition() {
         const scrollPosition = window.scrollY;
+        const isSticky = header.classList.contains('sticky');
         
-        // Add or remove sticky class based on scroll position
-        // Using 50px as threshold for when to activate the sticky header
-        if (scrollPosition > 50) {
+        // Use different thresholds for adding vs removing the sticky class
+        // This creates a buffer zone to prevent oscillation at the threshold
+        const addThreshold = 50;
+        const removeThreshold = 30;
+        
+        if (!isSticky && scrollPosition > addThreshold) {
+            // Only add sticky class if we're not already sticky and above the add threshold
             header.classList.add('sticky');
-        } else {
+        } else if (isSticky && scrollPosition <= removeThreshold) {
+            // Only remove sticky class if we're currently sticky and below the remove threshold
             header.classList.remove('sticky');
         }
     }
