@@ -116,8 +116,8 @@ header {
 }
 
 .header-logo {
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   transition: transform 0.3s ease;
@@ -1015,8 +1015,8 @@ footer a:hover {
   }
   
   .header-logo {
-    width: 36px;
-    height: 36px;
+    width: 60px;
+    height: 60px;
   }
   
   .logo h1 {
@@ -1072,8 +1072,8 @@ footer a:hover {
   }
   
   .header-logo {
-    width: 32px;
-    height: 32px;
+    width: 50px;
+    height: 50px;
   }
   
   .logo h1 {
