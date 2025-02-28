@@ -1162,12 +1162,12 @@ footer a:hover {
 /* Delete button for palette history items */
 .delete-palette-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   background-color: rgba(0, 0, 0, 0.5);
   color: rgba(255, 255, 255, 0.7);
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1179,6 +1179,7 @@ footer a:hover {
   transition: all var(--transition-normal);
   z-index: 10;
   border: none;
+  padding: 0;
 }
 
 .history-item:hover .delete-palette-btn {
@@ -1190,6 +1191,7 @@ footer a:hover {
   background-color: var(--youtube-red);
   color: white;
   transform: scale(1.1);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Modal for delete confirmation */
