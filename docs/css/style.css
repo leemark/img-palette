@@ -98,7 +98,18 @@ header {
   padding: 0 2rem;
   display: flex;
   justify-content: space-between;
+}
+
+.logo {
+  display: flex;
   align-items: center;
+  gap: 0.75rem;
+}
+
+.header-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .logo h1 {
