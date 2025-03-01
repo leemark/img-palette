@@ -135,13 +135,9 @@ header.sticky .header-logo {
 }
 
 .header-logo:hover {
-  animation: subtleRotate 4s linear infinite alternate;
+  opacity: 0.95;
 }
 
-@keyframes subtleRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(5deg); }
-}
 
 
 .logo-text {
