@@ -2031,6 +2031,7 @@ footer a:hover {
 .palette-name.editing,
 .palette-description.editing {
   border: 1px solid var(--border-color);
+  color: var(--text-color);
   padding: 5px 10px;
   border-radius: 4px;
   background: rgba(0, 0, 0, 0.2);
