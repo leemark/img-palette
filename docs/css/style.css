@@ -88,16 +88,20 @@ header {
   box-shadow: var(--shadow-lg);
   padding: 1.25rem 0;
   margin-bottom: 3rem;
-  transition: padding 0.25s ease-out, box-shadow 0.25s ease-out;
+  transition: padding 0.25s ease-out, box-shadow 0.25s ease-out, transform 0.25s ease-out;
   border-bottom: 1px solid rgba(211, 84, 0, 0.3);
   position: sticky;
   top: 0;
   z-index: 100;
+  width: 100%;
+  will-change: transform, padding;
 }
 
 header.sticky {
   padding: 0.5rem 0;
   box-shadow: var(--shadow-md);
+  position: fixed;
+  transform: translateZ(0); /* Force hardware acceleration */
 }
 
 [data-theme="light"] header {
@@ -137,8 +141,6 @@ header.sticky .header-logo {
 .header-logo:hover {
   opacity: 0.95;
 }
-
-
 
 .logo-text {
   display: flex;
@@ -476,6 +478,7 @@ button {
   text-align: center;
   font-weight: 700;
   background: -webkit-linear-gradient(45deg, var(--primary-color), var(--primary-light));
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
