@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingIndicator = document.getElementById('loading-indicator');
     const paletteContainer = document.getElementById('palette-container');
     const paletteName = document.getElementById('palette-name');
+    const paletteDescription = document.getElementById('palette-description');
+    const editPaletteName = document.getElementById('edit-palette-name');
+    const editPaletteDescription = document.getElementById('edit-palette-description');
     const paletteColors = document.getElementById('palette-colors');
     const colorCodes = document.getElementById('color-codes');
     const historySection = document.getElementById('history-section');
@@ -521,17 +524,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayPalette(palette) {
-        // Set palette name
-        paletteName.textContent = palette.name;
+        // Display the palette in the interface
+        paletteContainer.hidden = false;
+        loadingIndicator.hidden = true;
         
-        // Set palette description if available
-        const paletteDescription = document.getElementById('palette-description');
-        if (palette.description) {
-            paletteDescription.textContent = palette.description;
-            paletteDescription.style.display = 'block';
-        } else {
-            paletteDescription.style.display = 'none';
-        }
+        // Set the palette name and description
+        paletteName.textContent = palette.name || 'Your Palette';
+        paletteDescription.textContent = palette.description || '';
+        
+        // Store palette globally for access in other functions
+        currentPalette = palette;
         
         // Clear previous palette
         paletteColors.innerHTML = '';
@@ -768,29 +770,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function savePalette() {
-        if (!currentPalette) return;
-        
-        // Add timestamp to palette
-        const paletteToSave = {
-            ...currentPalette,
-            timestamp: new Date().toISOString()
-        };
-        
-        // Add to history
-        paletteHistoryData.unshift(paletteToSave);
-        
-        // Keep only the latest 9 palettes
-        if (paletteHistoryData.length > 9) {
-            paletteHistoryData = paletteHistoryData.slice(0, 9);
+        // Check if we have a palette to save
+        if (!currentPalette) {
+            showToast('No palette to save.', 'error');
+            return;
         }
-        
+
+        // Get custom title and description if they exist
+        const customTitle = paletteName.textContent !== 'Your Palette' ? paletteName.textContent : currentPalette.name;
+        const customDescription = paletteDescription.textContent || currentPalette.description;
+
+        // Create palette data
+        const palette = {
+            ...currentPalette,
+            name: customTitle,
+            description: customDescription,
+            date: new Date().toISOString(),
+            id: Date.now().toString()
+        };
+
+        // Add to history
+        paletteHistoryData.unshift(palette);
+
+        // Keep only the last 10 palettes
+        if (paletteHistoryData.length > 10) {
+            paletteHistoryData.pop();
+        }
+
         // Save to localStorage
         localStorage.setItem('paletteHistory', JSON.stringify(paletteHistoryData));
-        
+
         // Update history display
         displayPaletteHistory();
-        
-        showToast('Palette saved to history', 'success');
+
+        showToast('Palette saved!', 'success');
     }
 
     function sharePalette() {
@@ -855,11 +868,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const historyTitle = document.createElement('h3');
             historyTitle.className = 'history-title';
-            historyTitle.textContent = palette.name;
+            historyTitle.textContent = palette.name || 'Untitled Palette';
             
             const historyDate = document.createElement('p');
             historyDate.className = 'history-date';
-            historyDate.textContent = formatDate(palette.timestamp);
+            // Use date property if available, otherwise fallback to timestamp
+            const dateString = palette.date || palette.timestamp;
+            historyDate.textContent = formatDate(dateString);
             
             historyInfo.appendChild(historyTitle);
             historyInfo.appendChild(historyDate);
@@ -1987,5 +2002,84 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.style.paddingTop = header.offsetHeight + 'px';
         });
     }
+
+    // Function to handle making elements editable
+    function makeEditable(element, elementType) {
+        const isTitle = elementType === 'palette-name';
+        // Add editing class
+        element.classList.add('editing');
+        
+        // Make element editable
+        element.contentEditable = true;
+        
+        // Focus the element
+        element.focus();
+        
+        // Select all text
+        const range = document.createRange();
+        range.selectNodeContents(element);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        // Listen for Enter key and blur events
+        const saveEdit = () => {
+            element.contentEditable = false;
+            element.classList.remove('editing');
+            
+            // Trim content and ensure it's not empty
+            let content = element.textContent.trim();
+            if (!content) {
+                // Default values if empty
+                if (isTitle) {
+                    content = currentPalette?.name || 'Your Palette';
+                } else {
+                    content = currentPalette?.description || '';
+                }
+            }
+            element.textContent = content;
+            
+            // Auto-save the changes
+            if (currentPalette) {
+                if (isTitle) {
+                    currentPalette.name = content;
+                } else {
+                    currentPalette.description = content;
+                }
+                // Only save to history if we actually have a palette
+                savePalette();
+            }
+            
+            // Remove event listeners
+            element.removeEventListener('keydown', handleKeyDown);
+            element.removeEventListener('blur', saveEdit);
+        };
+        
+        const handleKeyDown = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                saveEdit();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                // Restore original content
+                element.textContent = isTitle 
+                    ? (currentPalette?.name || 'Your Palette') 
+                    : (currentPalette?.description || '');
+                element.contentEditable = false;
+                element.classList.remove('editing');
+                element.removeEventListener('keydown', handleKeyDown);
+                element.removeEventListener('blur', saveEdit);
+            }
+        };
+        
+        element.addEventListener('keydown', handleKeyDown);
+        element.addEventListener('blur', saveEdit);
+    }
+
+    // Event Listeners
+    themeToggle.addEventListener('click', toggleTheme);
+    // Additional event listeners for palette name/description editing
+    editPaletteName.addEventListener('click', () => makeEditable(paletteName, 'palette-name'));
+    editPaletteDescription.addEventListener('click', () => makeEditable(paletteDescription, 'palette-description'));
 
 });

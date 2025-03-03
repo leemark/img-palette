@@ -143,3 +143,17 @@ dist
 # Misc
 .DS_Store
 .vscode
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Local development tracking files
+DEVELOPMENT_LOG.md
+CURSOR_CONTEXT.md
