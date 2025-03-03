@@ -85,22 +85,14 @@ header {
   background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(211, 84, 0, 0.05));
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: var(--shadow-lg);
-  padding: 1.25rem 0;
+  box-shadow: var(--shadow-md);
+  padding: 0.5rem 0;
   margin-bottom: 3rem;
-  transition: padding 0.25s ease-out, box-shadow 0.25s ease-out, transform 0.25s ease-out;
   border-bottom: 1px solid rgba(211, 84, 0, 0.3);
-  position: sticky;
+  position: fixed;
   top: 0;
   z-index: 100;
   width: 100%;
-  will-change: transform, padding;
-}
-
-header.sticky {
-  padding: 0.5rem 0;
-  box-shadow: var(--shadow-md);
-  position: fixed;
   transform: translateZ(0); /* Force hardware acceleration */
 }
 
@@ -126,16 +118,10 @@ header.sticky {
 }
 
 .header-logo {
-  width: 70px;
-  height: 70px;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  transition: width 0.25s ease-out, height 0.25s ease-out;
-}
-
-header.sticky .header-logo {
   width: 32px;
   height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .header-logo:hover {
@@ -145,53 +131,30 @@ header.sticky .header-logo {
 .logo-text {
   display: flex;
   flex-direction: column;
-  transition: opacity 0.25s ease-out, max-height 0.25s ease-out;
 }
 
 .logo h1 {
-  font-size: 2.2rem;
+  font-size: 1.5rem;
   margin: 0;
   color: var(--primary-color);
   font-weight: 700;
   letter-spacing: -0.02em;
   text-transform: lowercase;
-  transition: font-size 0.25s ease-out;
   text-shadow: 
     0 0 20px rgba(211, 84, 0, 0.3),
-    0 2px 4px rgba(0, 0, 0, 0.5);
-  line-height: 1.1;
-}
-
-header.sticky .logo h1 {
-  font-size: 1.8rem;
+    0 0 10px rgba(211, 84, 0, 0.15);
 }
 
 .logo p {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
+  display: none;
   margin: 0;
-  transition: opacity 0.2s ease-out, max-height 0.25s ease-out;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  max-width: 270px;
-  line-height: 1.15rem;
-  opacity: 1;
-  max-height: 50px;
-  overflow: hidden;
-}
-
-header.sticky .logo p {
-  opacity: 0;
-  max-height: 0;
-  margin: 0;
-}
-
-[data-theme="light"] .logo h1 {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-[data-theme="light"] .logo p {
-  text-shadow: none;
+  font-size: 0.85rem;
   color: var(--text-secondary);
+  margin-top: 0.2rem;
+  letter-spacing: -0.01em;
+  text-shadow: 
+    0 0 10px rgba(211, 84, 0, 0.2),
+    0 0 5px rgba(211, 84, 0, 0.1);
 }
 
 .header-actions {
@@ -1036,10 +999,6 @@ footer a:hover {
     padding: 1rem 0;
   }
   
-  header.sticky {
-    padding: 0.5rem 0;
-  }
-  
   .header-content {
     padding: 0 1.5rem;
   }
@@ -1053,22 +1012,8 @@ footer a:hover {
     height: 60px;
   }
   
-  header.sticky .header-logo {
-    width: 28px;
-    height: 28px;
-  }
-  
   .logo h1 {
     font-size: 1.8rem;
-  }
-  
-  header.sticky .logo h1 {
-    font-size: 1.5rem;
-  }
-  
-  .logo p {
-    font-size: 0.8rem;
-    max-width: 220px;
   }
   
   .upload-container {
@@ -1099,27 +1044,14 @@ footer a:hover {
     padding: 0.75rem 0;
   }
   
-  header.sticky {
-    padding: 0.4rem 0;
-  }
-  
   .header-content {
     flex-direction: column;
     gap: 0.75rem;
   }
   
-  header.sticky .header-content {
-    flex-direction: row;
-  }
-  
   .logo {
     flex-direction: column;
     text-align: center;
-    gap: 0.5rem;
-  }
-  
-  header.sticky .logo {
-    flex-direction: row;
     gap: 0.5rem;
   }
   
@@ -1132,17 +1064,8 @@ footer a:hover {
     height: 50px;
   }
   
-  header.sticky .header-logo {
-    width: 24px;
-    height: 24px;
-  }
-  
   .logo h1 {
     font-size: 1.6rem;
-  }
-  
-  header.sticky .logo h1 {
-    font-size: 1.3rem;
   }
   
   .logo p {

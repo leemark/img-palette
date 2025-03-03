@@ -1978,63 +1978,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize sticky header
     function initStickyHeader() {
-        // Initial check on page load
-        checkScrollPosition();
+        // Since we're now using a fixed header, we just need to add
+        // padding to the body to compensate for the header height
+        document.body.style.paddingTop = header.offsetHeight + 'px';
         
-        // Add scroll event listener with throttling to improve performance
-        let lastScrollTime = 0;
-        let lastScrollY = window.scrollY;
-        const scrollThrottle = 100; // Increased throttle to reduce frequency of checks
-        let isInTransition = false;
-        let transitionTimeout = null;
-        
-        window.addEventListener('scroll', () => {
-            const now = Date.now();
-            if (now - lastScrollTime >= scrollThrottle && !isInTransition) {
-                lastScrollTime = now;
-                checkScrollPosition();
-            }
-        });
-
-        // Prevent scroll events from triggering during header transitions
-        header.addEventListener('transitionstart', () => {
-            isInTransition = true;
-            if (transitionTimeout) clearTimeout(transitionTimeout);
-        });
-
-        header.addEventListener('transitionend', () => {
-            // Add a little delay after the transition completes before allowing scroll events again
-            if (transitionTimeout) clearTimeout(transitionTimeout);
-            transitionTimeout = setTimeout(() => {
-                isInTransition = false;
-                // Check once more after transition completes
-                checkScrollPosition();
-            }, 100);
-        });
-    }
-    
-    // Check scroll position and toggle sticky class
-    function checkScrollPosition() {
-        const scrollPosition = window.scrollY;
-        const isSticky = header.classList.contains('sticky');
-        
-        // Use different thresholds for adding vs removing the sticky class
-        // This creates a buffer zone to prevent oscillation at the threshold
-        const addThreshold = 80;
-        const removeThreshold = 20;
-        
-        if (!isSticky && scrollPosition > addThreshold) {
-            // Only add sticky class if we're not already sticky and above the add threshold
+        // Add resize event listener to adjust padding if window size changes
+        window.addEventListener('resize', () => {
             document.body.style.paddingTop = header.offsetHeight + 'px';
-            header.classList.add('sticky');
-        } else if (isSticky && scrollPosition <= removeThreshold) {
-            // Only remove sticky class if we're currently sticky and below the remove threshold
-            header.classList.remove('sticky');
-            // Use a timeout to remove the padding after the header has fully transitioned
-            setTimeout(() => {
-                document.body.style.paddingTop = '0px';
-            }, 250); // Match this with the transition duration in CSS
-        }
+        });
     }
 
 });
