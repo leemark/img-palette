@@ -294,6 +294,7 @@ button {
   color: var(--text-color);
   font-size: 1rem;
   padding: 0.75rem 1.5rem;
+  margin-bottom: 1rem;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
