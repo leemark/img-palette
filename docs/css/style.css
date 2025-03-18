@@ -244,6 +244,7 @@ button {
   justify-content: center;
   margin-bottom: 2rem;
   margin-top: 1rem;
+  padding: 1rem;
   position: relative;
   overflow: hidden;
   background-color: rgba(255, 255, 255, 0.05);
@@ -294,7 +295,6 @@ button {
   color: var(--text-color);
   font-size: 1rem;
   padding: 0.75rem 1.5rem;
-  margin-bottom: 1rem;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
