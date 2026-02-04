@@ -3,7 +3,7 @@ main = "worker.js"
 compatibility_date = "2023-08-01"
 
 # Enable Node.js compatibility
-node_compat = true
+compatibility_flags = ["nodejs_compat"]
 
 [vars]
 # These will need to be set in the Cloudflare dashboard or via CLI
